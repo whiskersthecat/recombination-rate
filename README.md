@@ -49,4 +49,12 @@ In addition to logging a summary to **cout**, checkSNPs generates the following 
 In order to ensure that **checkSNPs** categorizes reads, feed it reads that originate from only one parent.
 Early tests prove very poor performance:
 > When processing 99989 parent B reads, 90123 are identified as parent B, but 33 are incorrectly marked as recombinant. Recombinant reads have mistake mismatches that make some mismatch sites appear to be from parent A.
-In order to properly assess recombination rate, the error rate must be vastly reduced. It is estimated that only 3 among 50000 reads should be recombinant.
+
+> When processing 99884 parent A reads, 1507 are identified as parent A, 52 are (incorrectly) marked as parent B, and 72 are (incorrectly) marked as recombinant.
+
+In order to properly assess recombination rate, the error rate must be vastly reduced. It is estimated that only 3 among 50000 reads should be recombinant. Consequently, the following improvements are to be developed in order to improve performance:
+- Improve assembly of parent A.
+- Improve assembly of parent B.
+- Improve .BED (high quality SNP) file.
+- Analyze the reads that contain incorrect mappings. Parent B aligned reads with a threshold number of mismatches are likely produced by incorrect mapping attempts to non - existent features to the Parent A genome. These reads are innacurate and should be removed.
+- Add a second .BED file. Remove any reads that do not agree with mappings and SNP analysis based on _both_ reference genomes (parent A and B).
