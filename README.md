@@ -9,6 +9,8 @@ A tool for classifying aligned F2 PacBio or Nanopore sequencing reads as parenta
 The executable **checkSNPs** takes the following command line arguments:
 > ./checkSNPs _snp_file.bed_ _samfile1.SAM_ _samfile2.SAM_
 
+_Note: some parameters, like chromosome number, name, and size, are hard coded and cannot currently be passed as input_
+
 ### _SNP File_
 **snp_file.bed** represents the variants between parent A and parent B and consists of tab-seperated lines as follows:
 > _chromosome_ _SNPstartlocation_ _SNPendlocation_ _referencebase_ _alternatebase_
@@ -21,7 +23,7 @@ which represent that any sequence from parent B aligning to parent A should have
 
 according to the specifications [minimap2](https://lh3.github.io/minimap2/minimap2.html).
 
-## Algorithm
+### Algorithm
 For each read in **samfile1.SAM**, check which mismatches should occur within the length of the aligned read according to **snp_file.bed** iff the read was of parent B origin. Call these expected mismatches.
 
 Parse the MD:Z tag of the SAM file to determine the position of mismatches in the alignment. 
@@ -36,7 +38,7 @@ Reads and subsequently categorized as follows:
 5. If the read switches between match and mismatch more than once, discard it. _Any read with this behavior is incorrectly marked, as there cannot be more than one recombination_  
 6. If the read switches between match and mismatch exactly once, mark it as **recombinant**.  
 
-## Output
+### Output
 In addition to logging a summary to **cout**, checkSNPs generates the following output files in a new folder in the directory of the SAM file. Each contains detailed information about the processing of a group of reads.
 
 - **US96UC23_Reads.txt** Reads marked according to 4 above.
@@ -45,7 +47,7 @@ In addition to logging a summary to **cout**, checkSNPs generates the following 
 - **AllDiscarded_Reads.txt** Reads marked according to 1 and 2 above.
 - **AllBadMismatchNumber_reads.txt** Reads marked according to 5 above.
 
-## Benchmarking
+### Benchmarking
 In order to ensure that **checkSNPs** categorizes reads, feed it reads that originate from only one parent.
 Early tests prove very poor performance:
 > When processing 99989 parent B reads, 90123 are identified as parent B, but 33 are incorrectly marked as recombinant. Recombinant reads have mistake mismatches that make some mismatch sites appear to be from parent A.
@@ -58,3 +60,9 @@ In order to properly assess recombination rate, the error rate must be vastly re
 - Improve .BED (high quality SNP) file.
 - Analyze the reads that contain incorrect mappings. Parent B aligned reads with a threshold number of mismatches are likely produced by incorrect mapping attempts to non - existent features to the Parent A genome. These reads are innacurate and should be removed.
 - Add a second .BED file. Remove any reads that do not agree with mappings and SNP analysis based on _both_ reference genomes (parent A and B).
+
+
+## bed_to_VCF.cc
+### Usage
+bed_to_VCF.cc takes a variant file in .bed format and converts it to .VCF format for analysis tools such as [IGV](https://software.broadinstitute.org/software/igv/).
+
