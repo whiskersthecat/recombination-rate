@@ -7,12 +7,12 @@ A tool for classifying aligned F2 PacBio or Nanopore sequencing reads as parenta
 > g++ checkSNPs.cc -o checkSNPs -std=c++11
 
 The executable **checkSNPs** takes the following command line arguments:
-> ./checkSNPs _snp_file.bed_ _samfile1.SAM_ _samfile2.SAM_
+> ./checkSNPs _snp_file1.bed_ _snp_file2.bed_ _samfile1.SAM_ _samfile2.SAM_
 
 _Note: some parameters, like chromosome number, name, and size, are hard coded and cannot currently be passed as input_
 
 ### _SNP File_
-**snp_file.bed** represents the variants between parent A and parent B and consists of tab-seperated lines as follows:
+**snp_file1.bed** represents the variant positions of parent A, and consists of tab-seperated lines as follows:
 > _chromosome_ _SNPstartlocation_ _SNPendlocation_ _referencebase_ _alternatebase_
 
 which represent that any sequence from parent B aligning to parent A should have a mismatch on chromosome _chromosome_ at position _SNPstartlocation_ changing base _referencebase_ to _alternatebase_.
@@ -24,7 +24,7 @@ which represent that any sequence from parent B aligning to parent A should have
 according to the specifications [minimap2](https://lh3.github.io/minimap2/minimap2.html).
 
 ### Algorithm
-For each read in **samfile1.SAM**, check which mismatches should occur within the length of the aligned read according to **snp_file.bed** iff the read was of parent B origin. Call these expected mismatches.
+For each read in **samfile1.SAM**, check which mismatches should occur within the length of the aligned read according to **snp_file1.bed** iff the read was of parent B origin. Call these expected mismatches.
 
 Parse the MD:Z tag of the SAM file to determine the position of mismatches in the alignment. 
 
@@ -37,6 +37,8 @@ Reads and subsequently categorized as follows:
 4. If all mismatch sites have mismatches, classify the read as **parent B**.  
 5. If the read switches between match and mismatch more than once, discard it. _Any read with this behavior is incorrectly marked, as there cannot be more than one recombination_  
 6. If the read switches between match and mismatch exactly once, mark it as **recombinant**.  
+
+Now, do the same using **samfile2.SAM** comparing to **snp_file2.bed**. If both analyzes agree and mark the read in category 3, 4, or 6, mark it like that. Otherwise, discard it.
 
 ### Output
 In addition to logging a summary to **cout**, checkSNPs generates the following output files in a new folder in the directory of the SAM file. Each contains detailed information about the processing of a group of reads.
